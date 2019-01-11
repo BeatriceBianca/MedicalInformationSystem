@@ -1,12 +1,10 @@
-package com.company;
-
 import java.util.List;
 
 public class Pacient {
 
     private String lastName;
     private String firstName;
-    private int age;
+    private Long age;
     private List<String> disease;
 
     public String getLastName() {
@@ -25,11 +23,11 @@ public class Pacient {
         this.firstName = firstName;
     }
 
-    public int getAge() {
+    public Long getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Long age) {
         this.age = age;
     }
 

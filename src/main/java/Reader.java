@@ -1,4 +1,4 @@
-package com.company;
+import java.io.IOException;
 
 public class Reader extends Thread
 {
@@ -31,7 +31,11 @@ public class Reader extends Thread
                 Thread.sleep((int) (Math.random() * DELAY));
             }
             catch (InterruptedException e) {}
-            this.database.read(this.number);
+            try {
+                this.database.read(this.number);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

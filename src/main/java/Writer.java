@@ -1,4 +1,4 @@
-package com.company;
+import java.io.IOException;
 
 /**
  This class represents a writer.
@@ -34,7 +34,11 @@ public class Writer extends Thread
                 Thread.sleep((int) (Math.random() * DELAY));
             }
             catch (InterruptedException e) {}
-            this.database.write(this.number);
+            try {
+                this.database.write(this.number);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
