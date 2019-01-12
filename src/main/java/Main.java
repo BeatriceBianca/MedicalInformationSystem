@@ -21,14 +21,20 @@ public class Main {
             final int READERS = Integer.parseInt(args[0]);
             final int WRITERS = Integer.parseInt(args[1]);
             File file1 = new File("src/main/java/pacients.txt") ;
-            Database database = new Database(file1);
+            File file2 = new File("src/main/java/pacients2.txt") ;
+            Database database1 = new Database(file1, "1");
+            Database database2 = new Database(file2, "2");
             for (int i = 0; i < READERS; i++)
             {
-                new Reader(database).start();
+                if (i%2 == 0)
+                    new Reader(database1).start();
+                else new Reader(database2).start();
             }
             for (int i = 0; i < WRITERS; i++)
             {
-                new Writer(database).start();
+                if (i%2 == 0)
+                    new Writer(database2).start();
+                else new Writer(database1).start();
             }
         }
 
@@ -87,23 +93,5 @@ public class Main {
 ////        System.out.print(pacients1);
 ////        System.out.print(pacients2);
 
-//        if (args.length < 2)
-//        {
-//            System.out.println("Usage: java Simulator <number of readers> <number of writers>");
-//        }
-//        else
-//        {
-//            final int READERS = Integer.parseInt(args[0]);
-//            final int WRITERS = Integer.parseInt(args[1]);
-//            Database database = new Database(pacients);
-//            for (int i = 0; i < READERS; i++)
-//            {
-//                new Reader(database).start();
-//            }
-//            for (int i = 0; i < WRITERS; i++)
-//            {
-//                new Writer(database).start();
-//            }
-//        }
     }
 }

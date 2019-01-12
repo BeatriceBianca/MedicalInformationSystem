@@ -14,13 +14,15 @@ public class Database
 {
     private int readers;
     private File file1;
+    private String fileNumber;
     /**
      Initializes this database.
      */
-    public Database(File file)
+    public Database(File file1, String fileNumber)
     {
         this.readers = 0;
-        this.file1 = file;
+        this.file1 = file1;
+        this.fileNumber = fileNumber;
     }
 
     /**
@@ -36,6 +38,7 @@ public class Database
                     new FileReader(file1);
 
             int i;
+            System.out.print("Reader " + number + " starts reading on file " + fileNumber + " : ");
             while ((i=fr.read()) != -1)
                 System.out.print((char) i);
             System.out.println();
@@ -50,7 +53,7 @@ public class Database
 
         synchronized(this)
         {
-            System.out.println("Reader " + number + " stops reading.");
+            System.out.println("Reader " + number + " stops reading on file " + fileNumber + ".");
             this.readers--;
             if (this.readers == 0)
             {
@@ -74,6 +77,7 @@ public class Database
             catch (InterruptedException e) {}
         }
 
+        System.out.println("Writer " + number + " starts writing on file " + fileNumber + ".");
         FileWriter writer = new FileWriter(file1);
         byte[] array = new byte[7]; // length is bounded by 7
         new Random().nextBytes(array);
@@ -88,7 +92,7 @@ public class Database
         }
         catch (InterruptedException e) {}
 
-        System.out.println("Writer " + number + " stops writing.");
+        System.out.println("Writer " + number + " stops writing on file " + fileNumber + ": " + generatedString);
         this.notifyAll();
     }
 }
