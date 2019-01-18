@@ -3,19 +3,29 @@ package controller;
 import com.medicalsystem.main.model.Reader;
 import com.medicalsystem.main.model.Writer;
 import com.medicalsystem.main.service.Database;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class BaseController {
 
+    private ArrayList<String> listOfCurrentUsers = new ArrayList<>();
+
     @RequestMapping(value = "/")
+    public String redirectToLogin() {
+        return "login";
+    }
+
+    @RequestMapping(value = "/index/{username}")
     public String redirectToIndex() {
         return "index";
     }
@@ -45,8 +55,17 @@ public class BaseController {
         }
     }
 
-    @RequestMapping(value = "/stop", method = RequestMethod.POST)
-    public void stopProcess() {
+    @ResponseBody
+    @RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void login(@RequestParam("username") String username) {
+        if (!listOfCurrentUsers.contains(username)) {
+            listOfCurrentUsers.add(username);
+        }
+    }
 
+    @ResponseBody
+    @RequestMapping(value = "/logout", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void logout(@RequestParam("username") String username) {
+        listOfCurrentUsers.remove(username);
     }
 }

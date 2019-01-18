@@ -9,6 +9,7 @@
 <body>
 
 <div>
+    <button id="logout"> Logout </button>
     <button id="startMain"> Start running program </button>
 </div>
 
@@ -23,6 +24,18 @@
                 data: {readers: 3, writers: 5},
                 success: function () {
                     console.log("Process started");
+                }
+            });
+        });
+
+        $('#logout').on('click', function () {
+            var href = window.location.href.split("/");
+            $.ajax({
+                type: "POST",
+                url: "/logout",
+                data: {username: href[href.length - 1]},
+                success: function () {
+                    window.location.href = "/";
                 }
             });
         })
