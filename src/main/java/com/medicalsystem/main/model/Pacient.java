@@ -1,13 +1,19 @@
 package com.medicalsystem.main.model;
 
+import java.util.Date;
 import java.util.List;
 
 public class Pacient {
 
+    private String id;
     private String lastName;
     private String firstName;
-    private Long age;
+    private Date birthDate;
     private List<String> disease;
+
+    public String getId() { return id; }
+
+    public void setId(String id) { this.id = id; }
 
     public String getLastName() {
         return lastName;
@@ -25,13 +31,9 @@ public class Pacient {
         this.firstName = firstName;
     }
 
-    public Long getAge() {
-        return age;
-    }
+    public Date getBirthDate() { return birthDate; }
 
-    public void setAge(Long age) {
-        this.age = age;
-    }
+    public void setBirthDate(Date birthDate) { this.birthDate = birthDate; }
 
     public List<String> getDisease() {
         return disease;

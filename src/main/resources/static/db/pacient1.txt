@@ -1,0 +1,14 @@
+{
+    "id": "pacient1",
+    "last_name": "Anton",
+    "first_name": "Razvan",
+    "birth_date": "12.09.1985",
+    "diseases": [
+        {
+            "id": "disease1"
+        },
+        {
+            "id": "disease2"
+        }
+    ]
+}
