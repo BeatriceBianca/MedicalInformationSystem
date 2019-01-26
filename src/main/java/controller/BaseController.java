@@ -103,7 +103,15 @@ public class BaseController {
     @RequestMapping(value = "/startReading/{pacientId}", method = RequestMethod.GET)
     public String startReading(@PathVariable("pacientId") String pacientId) {
         String id = null;
-
+        final boolean[] ok = {false};
+        while (!ok[0]) {
+            ok[0] = true;
+            listOfWriters.forEach((idWriter, writer) -> {
+                if (writer.getDatabase().getFileNumber().equals(pacientId)) {
+                    ok[0] = false;
+                }
+            });
+        }
         for(Database database: listOfDatabase) {
             if (database.getFileNumber().equals(pacientId)) {
                 Reader reader = new Reader(database);
@@ -139,6 +147,11 @@ public class BaseController {
                     ok[0] = false;
                 }
             });
+            listOfWriters.forEach((idWriter, writer) -> {
+                if (writer.getDatabase().getFileNumber().equals(pacientId)) {
+                    ok[0] = false;
+                }
+            });
         }
         for(Database database: listOfDatabase) {
             if (database.getFileNumber().equals(pacientId)) {
@@ -160,7 +173,7 @@ public class BaseController {
             }
         });
 
-        listOfReaders.keySet().removeIf(key -> key.equals(processId));
+        listOfWriters.keySet().removeIf(key -> key.equals(processId));
     }
 
     @ResponseBody

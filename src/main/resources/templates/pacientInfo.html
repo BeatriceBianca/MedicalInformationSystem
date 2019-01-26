@@ -47,16 +47,17 @@
                 data: {processId: href[href.length - 1]},
                 success: function (response) {}
             });
+
             $.ajax({
                 type: "GET",
                 url: "/startWriting/" + href[href.length - 2],
                 success: function (response) {
                     console.log("Process started");
                     $('#writingProcessId').html(response);
+                    $('#edit').css('display', 'block');
+                    $('#view').css('display', 'none');
                 }
             });
-            $('#edit').css('display', 'block');
-            $('#view').css('display', 'none');
         });
 
         $('#saveButton').on('click', function() {
@@ -73,10 +74,10 @@
                 success: function (response) {
                     console.log("Process started");
                     window.location.href = "/" + href[href.length - 3] + "/" + href[href.length - 2] + "/" + response;
+                    $('#edit').css('display', 'none');
+                    $('#view').css('display', 'block');
                 }
             });
-            $('#edit').css('display', 'none');
-            $('#view').css('display', 'block');
         });
 
 
