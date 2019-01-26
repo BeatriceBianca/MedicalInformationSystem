@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" ng-app="RoyalPalaceHotel">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <title>Medical Information System</title>
@@ -9,7 +9,19 @@
 <body>
 
 <div>
+
+    <div id="writingProcessId" style="display: none;"> </div>
+
     <div id="pacient">
+        <div id="view">
+            <div id="viewName"></div><br/>
+            <button id="editButton">Edit</button>
+        </div>
+
+        <div id="edit" style="display: none;">
+            <input id="editName" /><br/>
+            <button id="saveButton">Save</button>
+        </div>
 
     </div>
 </div>
@@ -19,14 +31,75 @@
 
     $(document).ready(function () {
         var href = window.location.href.split("/");
-
         $.ajax({
             type: "GET",
-            url: "/pacientInfo/" + href[href.length - 2] + "/" + href[href.length - 1],
+            url: "/pacientInfo/" + href[href.length - 3] + "/" + href[href.length - 2],
             success: function (response) {
-                console.log(response);
+                $("#viewName").html(response.firstName + " " + response.lastName);
             }
         });
+
+        $('#editButton').on('click', function() {
+            var href = window.location.href.split("/");
+            $.ajax({
+                type: "POST",
+                url: "/stopReading",
+                data: {processId: href[href.length - 1]},
+                success: function (response) {}
+            });
+            $.ajax({
+                type: "GET",
+                url: "/startWriting/" + href[href.length - 2],
+                success: function (response) {
+                    console.log("Process started");
+                    $('#writingProcessId').html(response);
+                }
+            });
+            $('#edit').css('display', 'block');
+            $('#view').css('display', 'none');
+        });
+
+        $('#saveButton').on('click', function() {
+            var href = window.location.href.split("/");
+            $.ajax({
+                type: "POST",
+                url: "/stopWriting",
+                data: {processId: $('#writingProcessId').html()},
+                success: function (response) {}
+            });
+            $.ajax({
+                type: "GET",
+                url: "/startReading/" + href[href.length - 2],
+                success: function (response) {
+                    console.log("Process started");
+                    window.location.href = "/" + href[href.length - 3] + "/" + href[href.length - 2] + "/" + response;
+                }
+            });
+            $('#edit').css('display', 'none');
+            $('#view').css('display', 'block');
+        });
+
+
+        window.onbeforeunload = function (e) {
+            var href = window.location.href.split("/");
+            if ($('#edit').css('display') === 'none') {
+                $.ajax({
+                    type: "POST",
+                    url: "/stopReading",
+                    data: {processId: href[href.length - 1]},
+                    success: function (response) {
+
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/stopWriting",
+                    data: {processId: $('#writingProcessId').html()},
+                    success: function (response) {}
+                });
+            }
+        };
     });
 
 </script>

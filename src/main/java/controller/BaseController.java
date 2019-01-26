@@ -14,20 +14,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class BaseController {
 
+    private List<Database> listOfDatabase = new ArrayList<>();
     private List<String> listOfCurrentUsers = new ArrayList<>();
     private List<PacientInfo> listOfPacientsInfo = new ArrayList<>();
     private final File folder = new File("D:/Facultate/Master/ProgrParalela/MedicalInformationSystem/src/main/resources/static/db");
+
+    private Map<String, Reader> listOfReaders = new LinkedHashMap<>();
+    private Map<String, Writer> listOfWriters = new LinkedHashMap<>();
 
     private final SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -46,6 +47,8 @@ public class BaseController {
 
             if (!listOfPacientsInfo.contains(pacientInfo)) {
                 listOfPacientsInfo.add(pacientInfo);
+                Database database = new Database(fileEntry, fileEntry.toString().split("db")[1].split(".txt")[0].substring(1));
+                listOfDatabase.add(database);
             }
         }
 
@@ -56,6 +59,16 @@ public class BaseController {
     @RequestMapping(value = "/pacientsInfo", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PacientInfo> getPacientsInfo() {
         return listOfPacientsInfo;
+    }
+
+    @RequestMapping(value = "/index/{username}")
+    public String redirectToIndex() {
+        return "index";
+    }
+
+    @RequestMapping(value = "/{username}/{pacientId}/{processId}")
+    public String redirectToPacientInfo() {
+        return "pacientInfo";
     }
 
     @ResponseBody
@@ -86,39 +99,68 @@ public class BaseController {
         return pacient;
     }
 
-    @RequestMapping(value = "/index/{username}")
-    public String redirectToIndex() {
-        return "index";
-    }
+    @ResponseBody
+    @RequestMapping(value = "/startReading/{pacientId}", method = RequestMethod.GET)
+    public String startReading(@PathVariable("pacientId") String pacientId) {
+        String id = null;
 
-    @RequestMapping(value = "/{username}/{pacientId}")
-    public String redirectToPacientInfo() {
-        return "pacientInfo";
+        for(Database database: listOfDatabase) {
+            if (database.getFileNumber().equals(pacientId)) {
+                Reader reader = new Reader(database);
+                id = UUID.randomUUID().toString();
+                listOfReaders.put(id, reader);
+                reader.start();
+            }
+        }
+        return id;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/start", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void startProcess(@RequestParam("readers") int readers, @RequestParam("writers") int writers) {
-        final int READERS = readers;
-        final int WRITERS = writers;
-//        File file1 = new File("src/resources/static/db/pacient1.txt") ;
-        File file1 = new File("D:/Facultate/Master/ProgrParalela/new/MedicalInformationSystem/src/main/resources/static/db/pacient1.txt") ;
-//        File file2 = new File("src/resources/static/db/pacient2.txt") ;
-        File file2 = new File("D:/Facultate/Master/ProgrParalela/new/MedicalInformationSystem/src/main/resources/static/db/pacient1.txt") ;
-        Database database1 = new Database(file1, "1");
-        Database database2 = new Database(file2, "2");
-        for (int i = 0; i < READERS; i++)
-        {
-            if (i%2 == 0)
-                new Reader(database1).start();
-            else new Reader(database2).start();
+    @RequestMapping(value = "/stopReading", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void stopReading(@RequestParam("processId") String processId) {
+        listOfReaders.forEach((idReader, reader) -> {
+            if (idReader.equals(processId)) {
+                reader.terminate();
+            }
+        });
+
+        listOfReaders.keySet().removeIf(key -> key.equals(processId));
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/startWriting/{pacientId}", method = RequestMethod.GET)
+    public String startWriting(@PathVariable("pacientId") String pacientId) {
+        String id = null;
+        final boolean[] ok = {false};
+        while (!ok[0]) {
+            ok[0] = true;
+            listOfReaders.forEach((idReader, reader) -> {
+                if (reader.getDatabase().getFileNumber().equals(pacientId)) {
+                    ok[0] = false;
+                }
+            });
         }
-        for (int i = 0; i < WRITERS; i++)
-        {
-            if (i%2 == 0)
-                new Writer(database2).start();
-            else new Writer(database1).start();
+        for(Database database: listOfDatabase) {
+            if (database.getFileNumber().equals(pacientId)) {
+                Writer writer = new Writer(database);
+                id = UUID.randomUUID().toString();
+                listOfWriters.put(id, writer);
+                writer.start();
+            }
         }
+        return id;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/stopWriting", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void stopWriting(@RequestParam("processId") String processId) {
+        listOfWriters.forEach((idWriter, writer) -> {
+            if (idWriter.equals(processId)) {
+                writer.terminate();
+            }
+        });
+
+        listOfReaders.keySet().removeIf(key -> key.equals(processId));
     }
 
     @ResponseBody

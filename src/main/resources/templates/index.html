@@ -43,17 +43,15 @@
         });
 
         $('#listOfPacients').on('click', "li", function(ev) {
-            var href = window.location.href.split("/");
-            window.location.href = "/" + href[href.length - 1] + "/" + ev.target.id;
-        });
 
-        $('#startMain').on('click', function () {
+            var href = window.location.href.split("/");
+
             $.ajax({
-                type: "POST",
-                url: "/start",
-                data: {readers: 3, writers: 5},
-                success: function () {
+                type: "GET",
+                url: "/startReading/" + ev.target.id,
+                success: function (response) {
                     console.log("Process started");
+                    window.location.href = "/" + href[href.length - 1] + "/" + ev.target.id + "/" + response;
                 }
             });
         });

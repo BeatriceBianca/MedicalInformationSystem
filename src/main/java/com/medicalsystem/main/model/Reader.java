@@ -6,10 +6,20 @@ import java.io.IOException;
 
 public class Reader extends Thread
 {
+    private volatile boolean running = true;
+    private volatile boolean stopped = false;
     private static int readers = 0; // number of readers
 
     private int number;
     private Database database;
+
+    public void terminate() {
+        running = false;
+    }
+
+    public Database getDatabase() {
+        return database;
+    }
 
     /**
      Creates a com.medicalsystem.main.model.Reader for the specified database.
@@ -27,18 +37,24 @@ public class Reader extends Thread
      */
     public void run()
     {
-        while (true)
+        if (running)
         {
-            final int DELAY = 5000;
-            try
-            {
-                Thread.sleep((int) (Math.random() * DELAY));
-            }
-            catch (InterruptedException e) {}
             try {
-                this.database.read(this.number);
+                this.database.startReading(this.number);
             } catch (IOException e) {
+                running = false;
                 e.printStackTrace();
+            }
+        }
+        while (!stopped) {
+            if (!running) {
+                try {
+                    this.database.stopReading(this.number);
+                    stopped = true;
+                } catch (IOException e) {
+                    running = true;
+                    e.printStackTrace();
+                }
             }
         }
     }

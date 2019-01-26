@@ -1,11 +1,7 @@
 package com.medicalsystem.main.service;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Random;
 
 /**
  This class represents a database.  There are many
@@ -17,13 +13,20 @@ import java.util.Random;
 public class Database
 {
     private int readers;
+    private int writers;
     private File file1;
     private String fileNumber;
+
+    public String getFileNumber() {
+        return fileNumber;
+    }
+
     /**
      Initializes this database.
      */
     public Database(File file1, String fileNumber)
     {
+        this.writers = 0;
         this.readers = 0;
         this.file1 = file1;
         this.fileNumber = fileNumber;
@@ -34,26 +37,22 @@ public class Database
 
      @param number Number of the reader.
      */
-    public void read(int number) throws IOException {
-        synchronized(this)
-        {
+    public void startReading(int number) throws IOException {
+        synchronized (this) {
+            while (this.writers != 0)
+            {
+                try
+                {
+                    this.wait();
+                }
+                catch (InterruptedException e) {}
+            }
             this.readers++;
-            FileReader fr =
-                    new FileReader(file1);
-
-            int i;
-            System.out.print("com.medicalsystem.main.model.Reader " + number + " starts reading on file " + fileNumber + " : ");
-            while ((i=fr.read()) != -1)
-                System.out.print((char) i);
-            System.out.println();
+            System.out.println("com.medicalsystem.main.model.Reader " + number + " starts reading on file " + fileNumber + " : ");
         }
+    }
 
-        final int DELAY = 5000;
-        try
-        {
-            Thread.sleep((int) (Math.random() * DELAY));
-        }
-        catch (InterruptedException e) {}
+    public void stopReading(int number) throws IOException {
 
         synchronized(this)
         {
@@ -71,7 +70,7 @@ public class Database
 
      @param number Number of the writer.
      */
-    public synchronized void write(int number) throws IOException {
+    public synchronized void startWriting(int number) throws IOException {
         while (this.readers != 0)
         {
             try
@@ -81,22 +80,13 @@ public class Database
             catch (InterruptedException e) {}
         }
 
+        this.writers++;
         System.out.println("com.medicalsystem.main.model.Writer " + number + " starts writing on file " + fileNumber + ".");
-        FileWriter writer = new FileWriter(file1);
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        String generatedString = new String(array, Charset.forName("UTF-8"));
-        writer.write(generatedString);
-        writer.close();
+    }
 
-        final int DELAY = 5000;
-        try
-        {
-            Thread.sleep((int) (Math.random() * DELAY));
-        }
-        catch (InterruptedException e) {}
-
-        System.out.println("com.medicalsystem.main.model.Writer " + number + " stops writing on file " + fileNumber + ": " + generatedString);
+    public synchronized void stopWriting(int number) throws IOException {
+        this.writers--;
         this.notifyAll();
+        System.out.println("com.medicalsystem.main.model.Writer " + number + " stops writing on file " + fileNumber + ".");
     }
 }
