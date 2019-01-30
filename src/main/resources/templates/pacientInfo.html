@@ -5,6 +5,13 @@
     <title>Medical Information System</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link href='https://fonts.googleapis.com/css?family=Cookie' rel='stylesheet'/>
+    <style>
+
+    </style>
 </head>
 <body>
 
@@ -14,7 +21,12 @@
 
     <div id="pacient">
         <div id="view">
-            <div id="viewName"></div><br/>
+            <h2 id = "title"></h2>
+            <p> <b> First Name: </b> <span id="firstName"></span> </p>
+            <p> <b> Last Name: </b> <span id="lastName"></span> </p>
+            <p> <b> Birth Date: </b> <span id="birthDate"></span> </p>
+            <b> Diseases: </b>
+            <ul id="diseases"></ul>
             <button id="editButton">Edit</button>
         </div>
 
@@ -35,8 +47,17 @@
             type: "GET",
             url: "/pacientInfo/" + href[href.length - 3] + "/" + href[href.length - 2],
             success: function (response) {
-                $("#viewName").html(response.firstName + " " + response.lastName);
-            }
+                $("#firstName").text(response.firstName);
+                $("#lastName").text(response.lastName);
+                var date  = new Date(response.birthDate);
+                $("#birthDate").text(date.toLocaleDateString());
+                response.disease.forEach(function(d) {
+                    $("#diseases").append('<li class="list-group-item">'
+                        + d+ '</li>')
+
+
+            });
+        }
         });
 
         $('#editButton').on('click', function() {

@@ -5,23 +5,59 @@
     <title>Medical Information System</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link href='https://fonts.googleapis.com/css?family=Cookie' rel='stylesheet'/>
     <style>
+
+        h2 {
+            font-family: 'Cookie';
+            font-size: 50px;
+            background-color: white;
+            opacity: 1;
+            margin-left: 30px;
+            margin-top: 60px;
+        }
+        body {
+            background-image: url("/health-insurance.jpg");
+            background-repeat: no-repeat;
+            background-size:cover
+        }
         #listOfPacients li {
             cursor: pointer;
+        }
+        li.pacient:hover {
+            background-color: aliceblue;
+            color: darkgray;
         }
     </style>
 </head>
 <body>
-
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#"><i class="fa fa-hospital-o"></i></a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a id="logout" href="#"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <div>
-    <button id="logout"> Logout </button>
-    <br/><br/>
-    <div>List of pacients</div>
-    <ul id="listOfPacients">
-    </ul>
-    <br/><br/>
-
+    <div class="container-fluid" >
+        <div class="row" style="padding-bottom: 20px">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8" style="opacity: 0.9;background-color: white; height: 600px">
+                <h2>List of pacients</h2>
+                <ul id="listOfPacients" class="list-group" style="margin: 80px; margin-top: 100px">
+                </ul>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+    </div>
     <!--<button id="startMain"> Start running program </button>-->
 </div>
 
@@ -35,9 +71,9 @@
             url: "/pacientsInfo",
             success: function (response) {
                 response.forEach(function(pacient) {
-                    $("#listOfPacients").append('<li class="pacient" id="' + pacient.id + '">'
-                                                    + pacient.firstName + ' '
-                                                    + pacient.lastName + '</li>')
+                    $("#listOfPacients").append('<li class="pacient list-group-item" id="' + pacient.id + '">'
+                        + pacient.firstName + ' '
+                        + pacient.lastName + '</li>')
                 });
             }
         });
