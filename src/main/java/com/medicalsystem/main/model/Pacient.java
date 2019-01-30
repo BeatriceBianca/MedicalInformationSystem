@@ -8,8 +8,8 @@ public class Pacient {
     private String id;
     private String lastName;
     private String firstName;
-    private Date birthDate;
-    private List<String> disease;
+    private String birthDate;
+    private List<String> diseases;
 
     public String getId() { return id; }
 
@@ -31,15 +31,17 @@ public class Pacient {
         this.firstName = firstName;
     }
 
-    public Date getBirthDate() { return birthDate; }
+    public String getBirthDate() { return birthDate; }
 
-    public void setBirthDate(Date birthDate) { this.birthDate = birthDate; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
 
-    public List<String> getDisease() {
-        return disease;
+    public List<String> getDiseases() {
+        return diseases;
     }
 
-    public void setDisease(List<String> disease) {
-        this.disease = disease;
+    public void setDiseases(List<String> diseases) {
+        this.diseases = diseases;
     }
+
+    public void addDisease(String disease) { this.diseases.add(disease);}
 }

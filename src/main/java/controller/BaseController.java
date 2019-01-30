@@ -1,11 +1,11 @@
 package controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.medicalsystem.main.model.Pacient;
 import com.medicalsystem.main.model.PacientInfo;
 import com.medicalsystem.main.model.Reader;
 import com.medicalsystem.main.model.Writer;
 import com.medicalsystem.main.service.Database;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -30,8 +29,6 @@ public class BaseController {
     private Map<String, Reader> listOfReaders = new LinkedHashMap<>();
     private Map<String, Writer> listOfWriters = new LinkedHashMap<>();
 
-    private final SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-
     @RequestMapping(value = "/")
     public String redirectToLogin() throws IOException, ParseException {
         JSONParser parser = new JSONParser();
@@ -42,8 +39,8 @@ public class BaseController {
             JSONObject jsonObject = (JSONObject) obj;
             PacientInfo pacientInfo = new PacientInfo();
             pacientInfo.setId((String) jsonObject.get("id"));
-            pacientInfo.setLastName((String) jsonObject.get("last_name"));
-            pacientInfo.setFirstName((String) jsonObject.get("first_name"));
+            pacientInfo.setLastName((String) jsonObject.get("lastName"));
+            pacientInfo.setFirstName((String) jsonObject.get("firstName"));
 
             if (!listOfPacientsInfo.contains(pacientInfo)) {
                 listOfPacientsInfo.add(pacientInfo);
@@ -74,26 +71,12 @@ public class BaseController {
     @ResponseBody
     @RequestMapping(value = "/pacientInfo/{username}/{pacient}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Pacient getPacient(@PathVariable("username") String username, @PathVariable("pacient") String pacientId) {
-        JSONParser parser = new JSONParser();
         Pacient pacient = new Pacient();
         try {
-            Object obj = parser.parse(new FileReader(folder.getAbsolutePath()+"\\"+pacientId+".txt"));
-            JSONObject jsonObject = (JSONObject) obj;
-            pacient.setId((String) jsonObject.get("id"));
-            pacient.setLastName((String) jsonObject.get("last_name"));
-            pacient.setFirstName((String) jsonObject.get("first_name"));
-            pacient.setBirthDate(formatter.parse((String) jsonObject.get("birth_date")));
+            ObjectMapper mapper = new ObjectMapper();
+            pacient = mapper.readValue(new File(folder.getAbsolutePath()+"\\"+pacientId+".txt"), Pacient.class);
 
-            List<String> pacientDiseases = new ArrayList<>();
-            JSONArray diseasesList = (JSONArray) jsonObject.get("diseases");
-            for(Object o: diseasesList){
-                if ( o instanceof JSONObject ) {
-                    JSONObject disease = (JSONObject) o;
-                    pacientDiseases.add((String) disease.get("id"));
-                }
-            }
-            pacient.setDisease(pacientDiseases);
-        } catch (IOException | java.text.ParseException | ParseException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return pacient;
@@ -166,7 +149,21 @@ public class BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/stopWriting", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void stopWriting(@RequestParam("processId") String processId) {
+    public void stopWriting(@RequestParam("processId") String processId,
+                            @RequestParam("disease") String newDisease,
+                            @RequestParam("pacientId") String pacientId) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        Pacient pacient = null;
+        try {
+            pacient = mapper.readValue(new File(folder.getAbsolutePath()+"\\"+pacientId+".txt"), Pacient.class);
+            if (!newDisease.equals(""))
+                pacient.addDisease(newDisease);
+            mapper.writeValue(new File(folder.getAbsolutePath()+"\\"+pacientId+".txt"), pacient);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         listOfWriters.forEach((idWriter, writer) -> {
             if (idWriter.equals(processId)) {
                 writer.terminate();

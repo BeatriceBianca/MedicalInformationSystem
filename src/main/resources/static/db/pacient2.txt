@@ -1,14 +1,1 @@
-{
-    "id": "pacient2",
-    "last_name": "Toma",
-    "first_name": "Alina",
-    "birth_date": "23.02.1993",
-    "diseases": [
-        {
-            "id": "disease2"
-        },
-        {
-            "id": "disease3"
-        }
-    ]
-}
+{"id":"pacient2","lastName":"Toma","firstName":"Alina","birthDate":"23.02.1993","diseases":["disease2","disease3"]}

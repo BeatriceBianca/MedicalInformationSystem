@@ -1,14 +1,10 @@
 {
     "id": "pacient3",
-    "last_name": "Andreescu",
-    "first_name": "Gabriel",
-    "birth_date": "07.02.2000",
+    "lastName": "Andreescu",
+    "firstName": "Gabriel",
+    "birthDate": "07.02.2000",
     "diseases": [
-        {
-            "id": "disease1"
-        },
-        {
-            "id": "disease4"
-        }
-    ]
+            "disease1",
+            "disease4"
+        ]
 }
